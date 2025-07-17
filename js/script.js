@@ -85,6 +85,17 @@ window.addEventListener('scroll', function() {
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Check if form is disabled (temporary)
+    const submitButton = this.querySelector('button[type="submit"]');
+    
+    // Prevent submission if button is disabled
+    if (submitButton.disabled || submitButton.hasAttribute('disabled')) {
+        if (submitButton.textContent.includes('Coming Soon')) {
+            showNotification('Contact form is temporarily disabled. Please use our contact information above to reach us directly.', 'info');
+        }
+        return;
+    }
+    
     // Get form data
     const formData = new FormData(this);
     const name = formData.get('name');
@@ -105,7 +116,6 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     }
     
     // Simulate form submission
-    const submitButton = this.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
     
     submitButton.textContent = 'Sending...';
@@ -137,12 +147,28 @@ function showNotification(message, type) {
     notification.className = `notification ${type}`;
     notification.textContent = message;
     
+    // Set background color based on type
+    let backgroundColor;
+    switch(type) {
+        case 'success':
+            backgroundColor = '#10b981';
+            break;
+        case 'error':
+            backgroundColor = '#ef4444';
+            break;
+        case 'info':
+            backgroundColor = '#3b82f6';
+            break;
+        default:
+            backgroundColor = '#6b7280';
+    }
+    
     // Style the notification
     notification.style.cssText = `
         position: fixed;
         top: 100px;
         right: 20px;
-        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        background: ${backgroundColor};
         color: white;
         padding: 1rem 1.5rem;
         border-radius: 8px;
@@ -202,19 +228,30 @@ function animateCounters() {
     const counters = document.querySelectorAll('.stat h3');
     
     counters.forEach(counter => {
+        const originalText = counter.textContent.trim();
+        
+        // Special case for 24/7
+        if (originalText === '24/7') {
+            // Don't animate 24/7, just keep it as is
+            return;
+        }
+        
         const target = parseInt(counter.textContent.replace(/\D/g, ''));
         const suffix = counter.textContent.replace(/\d/g, '');
-        let current = 0;
-        const increment = target / 100;
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                counter.textContent = target + suffix;
-                clearInterval(timer);
-            } else {
-                counter.textContent = Math.ceil(current) + suffix;
-            }
-        }, 20);
+       // Only animate if we have a valid number
+        if (!isNaN(target) && target > 0) {
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target + suffix;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.ceil(current) + suffix;
+                }
+            }, 20);
+        }
     });
 }
 

@@ -62,6 +62,31 @@ html {
     width: 100%;
 }
 
+/* Disabled button styles */
+.btn:disabled,
+.btn[disabled] {
+    background: #9ca3af !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.6 !important;
+}
+
+.btn-primary:disabled,
+.btn-primary[disabled] {
+    background: #9ca3af !important;
+    background-image: none !important;
+}
+
+.btn:disabled:hover,
+.btn[disabled]:hover {
+    background: #9ca3af !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 .section-header {
     text-align: center;
     margin-bottom: 60px;
