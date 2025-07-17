@@ -1,6 +1,6 @@
 # C-Medics Website
 
-A modern, responsive static website for C-Medics medical equipment and products sales business.
+A modern, responsive static website for C-Medics medical equipment and products sales business
 
 ## Features
 
