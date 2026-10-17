@@ -2,6 +2,10 @@
 
 A modern, responsive static website for C-Medics medical equipment and products sales business
 
+**Live website:** [C-Medics - Medical Equipment & Surgical Products](https://c-medics.github.io/)
+
+**Quotation builder:** [Create a quotation](https://c-medics.github.io/quotation.html)
+
 ## Features
 
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
