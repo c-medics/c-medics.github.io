@@ -27,17 +27,25 @@ A modern, responsive static website for C-Medics medical equipment and products 
    - Complete terms of service template
    - Business protection clauses
 
+4. **Quotation Builder (quotation.html)**
+   - Enter a customer, date, subject, and products
+   - Calculates GST, per-unit prices, and totals (5% GST by default)
+   - Print or save the formatted quotation as a PDF from the browser
+
 ## File Structure
 
 ```text
 c-medics/
 ├── index.html          # Main homepage
+├── quotation.html      # Quotation builder and printable preview
 ├── privacy.html        # Privacy policy page
 ├── terms.html          # Terms of service page
 ├── css/
-│   └── styles.css      # Main stylesheet
+│   ├── styles.css      # Main stylesheet
+│   └── quotation.css   # Quotation builder and print layout
 ├── js/
-│   └── script.js       # Interactive functionality
+│   ├── script.js       # Homepage interactive functionality
+│   └── quotation.js    # Quotation calculations and preview
 └── README.md          # This file
 ```
 

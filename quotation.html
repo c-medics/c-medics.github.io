@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create and print C-Medics customer quotations">
+    <title>Create a Quotation - C-Medics</title>
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <link rel="stylesheet" href="css/quotation.css">
+</head>
+<body>
+    <header class="app-header">
+        <a class="back-link" href="index.html">&larr; C-Medics website</a>
+        <div class="app-title">
+            <h1>Quotation builder</h1>
+            <p>Enter the customer and product details, then print or save the quotation as a PDF.</p>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <section class="editor" aria-labelledby="details-heading">
+            <form id="quotationForm">
+                <fieldset>
+                    <legend id="details-heading">Quotation details</legend>
+                    <label class="field">
+                        <span>Customer name and address</span>
+                        <textarea id="recipient" rows="5" placeholder="Customer name&#10;Hospital or organization&#10;Address" required></textarea>
+                    </label>
+                    <div class="field-row">
+                        <label class="field">
+                            <span>Date</span>
+                            <input id="quotationDate" type="date" required>
+                        </label>
+                        <label class="field">
+                            <span>Subject</span>
+                            <input id="subject" type="text" value="Price quotation for enquired products" required>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="products-fieldset">
+                    <legend>Products</legend>
+                    <p class="field-hint">GST defaults to 5% for each product. Change it when needed.</p>
+                    <div id="productRows" class="product-rows"></div>
+                    <button id="addProduct" class="button button-secondary" type="button">+ Add product</button>
+                </fieldset>
+
+                <div class="editor-actions">
+                    <button id="printQuotation" class="button button-primary" type="button">Print / Save as PDF</button>
+                    <p>In the print window, choose “Save as PDF” as the destination.</p>
+                </div>
+            </form>
+        </section>
+
+        <section class="preview-panel" aria-labelledby="preview-heading">
+            <h2 id="preview-heading" class="preview-heading">Quotation preview</h2>
+            <article id="quotationPreview" class="quotation-sheet" aria-label="Printable quotation preview">
+                <header class="letterhead">
+                    <img src="logo.jpg" alt="C-Medics logo" class="letterhead-logo">
+                    <div class="business-name">
+                        <h2>C-MEDICS</h2>
+                        <p>MEDICAL &amp; SURGICALS<br>HYDERABAD</p>
+                    </div>
+                    <div class="business-ids">
+                        <p><strong>GST:</strong> 36ARFPB8680H1ZN</p>
+                        <p><strong>DL:</strong> 20B TG/HYD/2024-127667<br>21B TG/HYD/2024-127667</p>
+                    </div>
+                </header>
+
+                <div class="quotation-date"><span id="previewDate"></span></div>
+                <section class="recipient-block">
+                    <h3>TO</h3>
+                    <p id="previewRecipient"></p>
+                </section>
+                <p class="quotation-subject">SUB: <span id="previewSubject"></span></p>
+
+                <div class="table-wrap">
+                    <table class="quotation-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">S. No.</th>
+                                <th scope="col">Product</th>
+                                <th scope="col">Qty</th>
+                                <th scope="col">Offer price<br>(per unit)</th>
+                                <th scope="col">GST<br>(per unit)</th>
+                                <th scope="col">GST rate</th>
+                                <th scope="col">Unit price<br>incl. GST</th>
+                                <th scope="col">Line total<br>incl. GST</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewProducts"></tbody>
+                    </table>
+                </div>
+
+                <div class="quotation-totals">
+                    <p><span>Offer subtotal</span><strong id="previewSubtotal"></strong></p>
+                    <p><span>Total GST</span><strong id="previewGst"></strong></p>
+                    <p class="grand-total"><span>Grand total (incl. GST)</span><strong id="previewTotal"></strong></p>
+                </div>
+
+                <footer class="quotation-footer">
+                    <div class="signoff">
+                        <p>THANKS &amp; REGARDS</p>
+                        <strong>C-MEDICS<br>HYDERABAD</strong>
+                    </div>
+                    <div class="business-contact">
+                        <p>ADDRESS: Shop No. 8, SMR In Style Building, Dubai Gate, Old Bowenpally, Secunderabad</p>
+                        <p>EMAIL: cmedics@yahoo.com &nbsp; | &nbsp; MOBILE: 9177433361</p>
+                    </div>
+                </footer>
+            </article>
+        </section>
+    </main>
+
+    <template id="productRowTemplate">
+        <div class="product-row">
+            <label class="field product-name-field">
+                <span>Product name</span>
+                <input class="product-name" type="text" placeholder="Product description" required>
+            </label>
+            <label class="field">
+                <span>Qty</span>
+                <input class="product-quantity" type="number" min="1" step="1" value="1" required>
+            </label>
+            <label class="field">
+                <span>Offer price (₹)</span>
+                <input class="product-price" type="number" min="0" step="0.01" value="0" required>
+            </label>
+            <label class="field">
+                <span>GST (%)</span>
+                <input class="product-gst" type="number" min="0" step="0.01" value="5" required>
+            </label>
+            <button class="remove-product" type="button" aria-label="Remove product">&times;</button>
+        </div>
+    </template>
+    <script src="js/quotation.js"></script>
+</body>
+</html>

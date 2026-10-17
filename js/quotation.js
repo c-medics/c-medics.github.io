@@ -1,0 +1,124 @@
+(function () {
+    const form = document.getElementById('quotationForm');
+    const productRows = document.getElementById('productRows');
+    const rowTemplate = document.getElementById('productRowTemplate');
+    const formatter = new Intl.NumberFormat('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    function roundMoney(value) {
+        return Math.round((value + Number.EPSILON) * 100) / 100;
+    }
+
+    function formatCurrency(value) {
+        return `₹${formatter.format(value)}`;
+    }
+
+    function formatDate(value) {
+        if (!value) return '';
+        const [year, month, day] = value.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
+    function addProductRow() {
+        productRows.appendChild(rowTemplate.content.cloneNode(true));
+        updatePreview();
+    }
+
+    function getProducts() {
+        return Array.from(productRows.querySelectorAll('.product-row')).map((row) => {
+            const name = row.querySelector('.product-name').value.trim();
+            const quantity = Math.max(1, Number(row.querySelector('.product-quantity').value) || 1);
+            const offerPrice = Math.max(0, Number(row.querySelector('.product-price').value) || 0);
+            const gstRate = Math.max(0, Number(row.querySelector('.product-gst').value) || 0);
+            const gstPerUnit = roundMoney(offerPrice * gstRate / 100);
+            const unitPrice = roundMoney(offerPrice + gstPerUnit);
+
+            return {
+                name,
+                quantity,
+                offerPrice,
+                gstRate,
+                gstPerUnit,
+                unitPrice,
+                lineGst: roundMoney(gstPerUnit * quantity),
+                lineTotal: roundMoney(unitPrice * quantity)
+            };
+        });
+    }
+
+    function addCell(row, text, className) {
+        const cell = document.createElement('td');
+        cell.textContent = text;
+        if (className) cell.className = className;
+        row.appendChild(cell);
+    }
+
+    function updatePreview() {
+        document.getElementById('previewDate').textContent =
+            formatDate(document.getElementById('quotationDate').value);
+        document.getElementById('previewRecipient').textContent =
+            document.getElementById('recipient').value.trim();
+        document.getElementById('previewSubject').textContent =
+            document.getElementById('subject').value.trim();
+
+        const previewProducts = document.getElementById('previewProducts');
+        previewProducts.replaceChildren();
+
+        let subtotal = 0;
+        let totalGst = 0;
+        let grandTotal = 0;
+
+        getProducts().forEach((product, index) => {
+            const row = document.createElement('tr');
+            addCell(row, String(index + 1));
+            addCell(row, product.name || '\u00a0');
+            addCell(row, String(product.quantity));
+            addCell(row, formatter.format(product.offerPrice));
+            addCell(row, formatter.format(product.gstPerUnit));
+            addCell(row, `${formatter.format(product.gstRate)}%`);
+            addCell(row, formatter.format(product.unitPrice));
+            addCell(row, formatter.format(product.lineTotal));
+            previewProducts.appendChild(row);
+
+            subtotal += product.offerPrice * product.quantity;
+            totalGst += product.lineGst;
+            grandTotal += product.lineTotal;
+        });
+
+        document.getElementById('previewSubtotal').textContent = formatCurrency(roundMoney(subtotal));
+        document.getElementById('previewGst').textContent = formatCurrency(roundMoney(totalGst));
+        document.getElementById('previewTotal').textContent = formatCurrency(roundMoney(grandTotal));
+
+        productRows.querySelectorAll('.remove-product').forEach((button) => {
+            button.disabled = productRows.querySelectorAll('.product-row').length === 1;
+        });
+    }
+
+    document.getElementById('addProduct').addEventListener('click', addProductRow);
+
+    productRows.addEventListener('input', updatePreview);
+    productRows.addEventListener('change', updatePreview);
+    productRows.addEventListener('click', (event) => {
+        const button = event.target.closest('.remove-product');
+        if (!button || productRows.querySelectorAll('.product-row').length === 1) return;
+        button.closest('.product-row').remove();
+        updatePreview();
+    });
+
+    form.addEventListener('input', updatePreview);
+    document.getElementById('printQuotation').addEventListener('click', () => {
+        if (!form.reportValidity()) return;
+        updatePreview();
+        window.print();
+    });
+
+    const today = new Date();
+    document.getElementById('quotationDate').value = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0')
+    ].join('-');
+    addProductRow();
+})();
