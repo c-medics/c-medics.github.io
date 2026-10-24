@@ -35,6 +35,7 @@ A modern, responsive static website for C-Medics medical equipment and products 
    - Enter a customer, date, subject, and products
    - Calculates GST, per-unit prices, and totals (5% GST by default)
    - Print or save the formatted quotation as a PDF from the browser
+   - Address and contact details stay at the bottom of every printed A4 page
 
 ## File Structure
 

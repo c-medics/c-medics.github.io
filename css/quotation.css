@@ -228,6 +228,20 @@ legend {
     box-shadow: 0 4px 18px rgb(15 23 42 / 12%);
 }
 
+.print-layout {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.print-content,
+.print-footer-space {
+    padding: 0;
+}
+
+.print-layout > tfoot {
+    display: none;
+}
+
 .letterhead {
     display: grid;
     grid-template-columns: 94px minmax(0, 1fr) minmax(160px, 0.8fr);
@@ -488,6 +502,14 @@ legend {
         box-shadow: none;
     }
 
+    .print-layout > tfoot {
+        display: table-footer-group;
+    }
+
+    .print-footer-space {
+        height: 16mm;
+    }
+
     .letterhead {
         grid-template-columns: 86px minmax(0, 1fr) minmax(145px, 0.8fr);
         gap: 10px;
@@ -570,6 +592,11 @@ legend {
     }
 
     .business-contact {
+        /* The repeating layout footer reserves this space on every printed page. */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         font-size: 8px;
     }
 
