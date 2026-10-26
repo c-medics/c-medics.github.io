@@ -6,6 +6,7 @@ import fitz
 
 filename, expected_pages, expected_products = sys.argv[1:]
 document = fitz.open(filename)
+assert document.metadata["creator"] == "C-Medics quotation builder"
 assert len(document) == int(expected_pages), f"Unexpected PDF page count: {len(document)}"
 items = []
 for index, page in enumerate(document):
@@ -14,11 +15,12 @@ for index, page in enumerate(document):
     text = page.get_text()
     assert text.count("ADDRESS:") == 1, f"Missing/repeated address on page {index + 1}"
     assert text.count("EMAIL:") == 1
+    assert len(page.get_images()) >= 1, "Missing letterhead logo"
     assert "36ARFPB8680H1ZN" in text
     assert f"Page {index + 1} of {len(document)}" in text
     address = page.search_for("ADDRESS:")[0]
     email = page.search_for("EMAIL:")[0]
-    assert 10 <= (page.rect.height - email.y1) * 25.4 / 72 <= 20
+    assert 8 <= (page.rect.height - email.y1) * 25.4 / 72 <= 14
     ids = page.search_for("GST:")[0]
     name = page.search_for("C-MEDICS")[0]
     assert ids.x0 > name.x1, "Business IDs moved left"
@@ -26,7 +28,14 @@ for index, page in enumerate(document):
     for block in page.get_text("blocks"):
         if "ADDRESS:" not in block[4] and "EMAIL:" not in block[4] and not block[4].startswith("Page "):
             assert block[3] < address.y0, "Content overlaps footer"
+        assert block[0] >= 0 and block[2] <= page.rect.width + 1, "Text outside page width"
+        assert block[1] >= 0 and block[3] <= page.rect.height, "Text outside page height"
     items.extend(re.findall(r"ITEM-\d{3}", text))
 assert items == [f"ITEM-{number:03}" for number in range(1, int(expected_products) + 1)], items
 assert document[-1].get_text().count("Grand total") == 1
+assert sum(page.get_text().count("Grand total") for page in document) == 1
+assert sum(page.get_text().count("THANKS & REGARDS") for page in document) == 1
+total = int(expected_products) * 9187.5
+assert f"{total:,.2f}".replace(",", "") in document[-1].get_text().replace(",", "")
+assert "\u20b9" in document[-1].get_text(), "Missing rupee glyph"
 print(f"Verified {len(document)} A4 pages, {len(items)} products, footers and letterheads")

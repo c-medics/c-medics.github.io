@@ -56,6 +56,8 @@
     }
 
     function updatePreview() {
+        document.getElementById('pdfActions').hidden = true;
+        document.getElementById('printStatus').textContent = '';
         document.getElementById('previewDate').textContent =
             formatDate(document.getElementById('quotationDate').value);
         document.getElementById('previewRecipient').textContent =
@@ -108,132 +110,61 @@
     });
 
     form.addEventListener('input', updatePreview);
-    const printDocument = document.getElementById('printDocument');
     const printStatus = document.getElementById('printStatus');
+    const pdfLink = document.getElementById('openPdf');
+    const pdfActions = document.getElementById('pdfActions');
+    const downloadLink = document.getElementById('downloadPdf');
+    const shareButton = document.getElementById('sharePdf');
+    let pdfUrl;
+    let pdfFile;
 
-    function cloneForPrint(element) {
-        const clone = element.cloneNode(true);
-        clone.removeAttribute('id');
-        clone.querySelectorAll('[id]').forEach((child) => child.removeAttribute('id'));
-        return clone;
-    }
-
-    function paginateQuotation() {
-        printDocument.replaceChildren();
-        const source = document.getElementById('quotationPreview');
-        const pages = [];
-
-        function newPage(firstPage) {
-            const page = document.createElement('section');
-            page.className = 'print-page';
-            const body = document.createElement('div');
-            body.className = 'print-page-body';
-            for (const selector of ['.letterhead', '.quotation-date']) {
-                body.appendChild(cloneForPrint(source.querySelector(selector)));
-            }
-            if (firstPage) {
-                body.appendChild(cloneForPrint(source.querySelector('.recipient-block')));
-                body.appendChild(cloneForPrint(source.querySelector('.quotation-subject')));
-            }
-            const table = cloneForPrint(source.querySelector('.quotation-table'));
-            const rows = table.querySelector('tbody');
-            rows.replaceChildren();
-            body.appendChild(table);
-            const contact = document.createElement('footer');
-            contact.className = 'print-page-contact';
-            contact.appendChild(cloneForPrint(source.querySelector('.business-contact')));
-            const number = document.createElement('p');
-            number.className = 'print-page-number';
-            // Reserve the page-number line before measuring.
-            number.textContent = 'Page 1 of 1';
-            contact.appendChild(number);
-            page.append(body, contact);
-            printDocument.appendChild(page);
-            const result = { page, body, rows, contact, number };
-            pages.push(result);
-            return result;
-        }
-
-        function fits(current) {
-            // Leave 1 mm for differences in fractional print-unit rounding.
-            return current.body.getBoundingClientRect().height +
-                current.contact.getBoundingClientRect().height + 4 <=
-                current.page.getBoundingClientRect().height;
-        }
-
-        let current = newPage(true);
-        if (!fits(current)) {
-            throw new Error('The customer address or subject is too long to fit on one page. Shorten it before printing.');
-        }
-        for (const row of source.querySelectorAll('.quotation-table tbody tr')) {
-            const clone = cloneForPrint(row);
-            current.rows.appendChild(clone);
-            if (!fits(current)) {
-                clone.remove();
-                // An unusually long address may leave no room for products on page one.
-                if (!current.rows.children.length) {
-                    current.body.querySelector('.quotation-table').remove();
-                }
-                current = newPage(false);
-                current.rows.appendChild(clone);
-                if (!fits(current)) {
-                    throw new Error('A product description is too long to fit on one page. Shorten it before printing.');
-                }
-            }
-        }
-
-        const closing = document.createElement('div');
-        closing.append(
-            cloneForPrint(source.querySelector('.quotation-totals')),
-            cloneForPrint(source.querySelector('.quotation-footer'))
-        );
-        current.body.appendChild(closing);
-        if (!fits(current)) {
-            closing.remove();
-            current = newPage(false);
-            current.body.querySelector('.quotation-table').remove();
-            current.body.appendChild(closing);
-            if (!fits(current)) {
-                throw new Error('The totals do not fit on a page. Reduce the size of the entered values.');
-            }
-        }
-        pages.forEach((entry, index) => {
-            entry.number.textContent = `Page ${index + 1} of ${pages.length}`;
-        });
-        return pages.length;
-    }
-
-    function preparePrint() {
+    shareButton.addEventListener('click', async () => {
+        if (!pdfFile) return;
+        shareButton.disabled = true;
         try {
-            updatePreview();
-            const count = paginateQuotation();
-            printStatus.textContent = `${count} A4 page${count === 1 ? '' : 's'} prepared. Choose A4, portrait, 100% scale, and turn off browser headers and footers.`;
-            return true;
+            await navigator.share({ files: [pdfFile], title: 'PRICE QUOTATION - C-Medics' });
+            printStatus.textContent = 'Share completed. You can still open or download your PDF.';
         } catch (error) {
-            console.error('Unable to prepare quotation for printing:', error);
-            printStatus.textContent = error.message;
-            printDocument.replaceChildren();
-            const message = document.createElement('p');
-            message.textContent = `Quotation could not be printed: ${error.message}`;
-            printDocument.appendChild(message);
-            return false;
+            if (error.name === 'AbortError') {
+                printStatus.textContent = 'Sharing cancelled. Your PDF is still ready.';
+            } else {
+                console.error('Unable to share quotation PDF:', error);
+                printStatus.textContent = 'Sharing is unavailable right now. Use Open PDF or Download PDF instead.';
+            }
+        } finally {
+            shareButton.disabled = false;
         }
-    }
+    });
 
-    window.addEventListener('beforeprint', preparePrint);
     document.getElementById('printQuotation').addEventListener('click', async () => {
         if (!form.reportValidity()) return;
         const button = document.getElementById('printQuotation');
         button.disabled = true;
+        const fieldsets = form.querySelectorAll('fieldset');
         try {
-            await document.fonts.ready;
-            const logo = document.querySelector('.letterhead-logo');
-            await logo.decode();
-            if (preparePrint()) window.print();
+            updatePreview();
+            fieldsets.forEach((fieldset) => { fieldset.disabled = true; });
+            printStatus.textContent = 'Creating PDF...';
+            const { blob, pages } = await window.createQuotationPdf({
+                recipient: document.getElementById('recipient').value.trim(),
+                subject: document.getElementById('subject').value.trim(),
+                date: formatDate(document.getElementById('quotationDate').value),
+                products: getProducts()
+            });
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+            pdfUrl = URL.createObjectURL(blob);
+            pdfLink.href = pdfUrl;
+            downloadLink.href = pdfUrl;
+            pdfFile = new File([blob], downloadLink.download, { type: 'application/pdf' });
+            shareButton.hidden = !(typeof navigator.share === 'function' &&
+                typeof navigator.canShare === 'function' && navigator.canShare({ files: [pdfFile] }));
+            pdfActions.hidden = false;
+            printStatus.textContent = `Your quotation is ready. ${pages} A4 page${pages === 1 ? '' : 's'}. Open the PDF to review or print it.`;
         } catch (error) {
-            console.error('Unable to load quotation assets:', error);
-            printStatus.textContent = 'The letterhead logo could not be loaded. Reload the page before printing.';
+            console.error('Unable to create quotation PDF:', error);
+            printStatus.textContent = `PDF could not be created: ${error.message}`;
         } finally {
+            fieldsets.forEach((fieldset) => { fieldset.disabled = false; });
             button.disabled = false;
         }
     });

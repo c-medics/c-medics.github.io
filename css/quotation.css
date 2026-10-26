@@ -178,12 +178,21 @@ legend {
 }
 
 .button {
-    min-height: 42px;
+    min-height: 44px;
     padding: 0.65rem 1rem;
     border: 0;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 700;
+    text-decoration: none;
+}
+
+.pdf-actions:not([hidden]) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    align-items: center;
 }
 
 .button-primary {
@@ -226,17 +235,6 @@ legend {
     padding: 32px;
     background: #fff;
     box-shadow: 0 4px 18px rgb(15 23 42 / 12%);
-}
-
-.print-layout {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.print-content,
-.print-footer {
-    padding: 0;
-    vertical-align: bottom;
 }
 
 .letterhead {
@@ -462,163 +460,22 @@ legend {
         grid-column: 2;
         justify-self: start;
     }
+
+    .quotation-table {
+        min-width: 620px;
+    }
 }
 
-@page {
-    size: A4 portrait;
-    margin: 12mm;
+.print-instructions {
+    display: none;
 }
-
-.print-document {
-    position: absolute;
-    left: -10000px;
-    top: 0;
-    width: 186mm;
-    height: 0;
-    overflow: hidden;
-    font-size: 12px;
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    overflow-wrap: anywhere;
-}
-
-.print-page {
-    width: 186mm;
-    height: 272mm;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    break-after: page;
-    page-break-after: always;
-}
-
-.print-page:last-child {
-    break-after: auto;
-    page-break-after: auto;
-}
-
-.print-page-body {
-    display: flow-root;
-}
-
-.print-page-contact {
-    margin-top: auto;
-    padding-top: 4mm;
-}
-
-.print-page-number {
-    text-align: right;
-    font-size: 8px;
-    margin: 2mm 0 0;
-}
-
-.print-document .letterhead {
-        grid-template-columns: 86px minmax(0, 1fr) minmax(145px, 0.8fr);
-        gap: 10px;
-        padding-bottom: 14px;
-    }
-
-.print-document .letterhead-logo {
-        width: 78px;
-        height: 78px;
-    }
-
-.print-document .business-name h2 {
-        font-size: 23px;
-    }
-
-.print-document .business-name p {
-        font-size: 11px;
-    }
-
-.print-document .business-ids {
-        grid-column: auto;
-        justify-self: end;
-        font-size: 9px;
-    }
-
-.print-document .quotation-date {
-        margin: 14px 0 10px;
-        font-size: 10px;
-    }
-
-.print-document .recipient-block {
-        min-height: 78px;
-    }
-
-.print-document .recipient-block h3,
-.print-document .recipient-block p,
-.print-document .quotation-subject {
-        font-size: 10px;
-    }
-
-.print-document .quotation-subject {
-        margin: 14px 0 18px;
-    }
-
-.print-document .table-wrap {
-        overflow: visible;
-    }
-
-.print-document .quotation-table {
-        font-size: 8px;
-    }
-
-.print-document .quotation-table th,
-.print-document .quotation-table td {
-        padding: 5px 3px;
-    }
-
-.print-document .quotation-table thead {
-        display: table-header-group;
-    }
-
-.print-document .quotation-table tr {
-        break-inside: avoid;
-    }
-
-.print-document .quotation-totals p {
-        font-size: 9px;
-    }
-
-.print-document .grand-total {
-        font-size: 10px !important;
-    }
-
-.print-document .quotation-footer {
-        margin-top: 24px;
-        break-inside: avoid;
-    }
-
-.print-document .signoff {
-        min-height: 70px;
-        font-size: 10px;
-    }
-
-.print-document .business-contact {
-        font-size: 8px;
-    }
 
 @media print {
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        background: #fff;
-    }
-
-    body > :not(.print-document) {
+    body > :not(.print-instructions) {
         display: none !important;
     }
 
-    .print-document {
-        position: static;
-        height: auto;
-        overflow: visible;
-    }
-
-    * {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
+    .print-instructions {
+        display: block;
     }
 }

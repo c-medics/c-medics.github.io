@@ -3,10 +3,10 @@
 Static website for C-Medics medical equipment and surgical supplies.
 
 - [Website](https://c-medics.github.io/)
-- [Quotation builder](https://c-medics.github.io/quotation.html) — enter products and customer details, calculate GST (5% default, editable), and print or save as PDF.
+- [Quotation builder](https://c-medics.github.io/quotation.html) — enter products and customer details, calculate GST (5% default, editable), and create an A4 PDF to open, download or share.
 
-For quotations, use A4 portrait and turn off browser headers and footers.
+PDFs are generated on your device, with embedded fonts and per-page letterhead and contact details. Open the downloaded PDF to share or print it; customer data is not uploaded.
 
 **Local preview:** `node tests/serve.cjs`, then open <http://127.0.0.1:8766/quotation.html>.
 
-**Tests:** `npm ci`, `npx playwright install chromium firefox webkit`, `python -m pip install -r tests/requirements.txt`, then `npm test`. Real iPhone Safari print/PDF review is required before publishing.
+**Tests:** `npm ci`, `npx playwright install chromium firefox webkit`, `python -m pip install -r tests/requirements.txt`, then `npm test`. Use `npm run build` after updating PDF dependencies to refresh the vendored scripts. PDF libraries and Noto Sans fonts are bundled with their licences.

@@ -2,7 +2,12 @@
   "name": "c-medics-website",
   "private": true,
   "scripts": {
+    "build": "node scripts/vendor-pdf.cjs",
     "test": "playwright test"
+  },
+  "dependencies": {
+    "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0"

@@ -3,10 +3,10 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.jpg': 'image/jpeg' };
+const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.ttf': 'font/ttf' };
 http.createServer(async (request, response) => {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
-    if (!/^\/(?:[\w-]+\.html|logo\.jpg|(?:css|js)\/[\w-]+\.(?:css|js))$/.test(pathname) && pathname !== '/') {
+    if (!/^\/(?:[\w-]+\.html|logo\.jpg|css\/[\w-]+\.css|js\/(?:vendor\/)?[\w.-]+\.js|assets\/fonts\/NotoSans-(?:Regular|Bold)\.ttf)$/.test(pathname) && pathname !== '/') {
         response.writeHead(404).end();
         return;
     }

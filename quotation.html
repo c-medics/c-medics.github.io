@@ -13,7 +13,7 @@
         <a class="back-link" href="index.html">&larr; C-Medics website</a>
         <div class="app-title">
             <h1>Quotation builder</h1>
-            <p>Enter the customer and product details, then print or save the quotation as a PDF.</p>
+            <p>Enter the customer and product details, then download your quotation as a PDF.</p>
         </div>
     </header>
 
@@ -46,87 +46,78 @@
                 </fieldset>
 
                 <div class="editor-actions">
-                    <button id="printQuotation" class="button button-primary" type="button">Print / Save as PDF</button>
-                    <p>Use A4 portrait with browser headers and footers off. On iPhone/iPad, open the print preview, then use Share to save it to Files. On desktop, choose “Save as PDF”.</p>
+                    <button id="printQuotation" class="button button-primary" type="button">Create PDF</button>
+                    <p>Create your quotation, then open, download or share it. Your details stay on your device.</p>
                     <p id="printStatus" role="status" aria-live="polite"></p>
+                    <div id="pdfActions" class="pdf-actions" role="group" aria-label="Your quotation PDF" hidden>
+                        <a id="openPdf" class="button button-secondary" target="_blank" rel="noopener">Open PDF</a>
+                        <button id="sharePdf" class="button button-secondary" type="button" hidden>Share / Save PDF</button>
+                        <a id="downloadPdf" class="button button-secondary" download="PRICE QUOTATION - C-Medics.pdf">Download PDF</a>
+                    </div>
                 </div>
             </form>
         </section>
 
         <section class="preview-panel" aria-labelledby="preview-heading">
-            <h2 id="preview-heading" class="preview-heading">Quotation preview</h2>
-            <article id="quotationPreview" class="quotation-sheet" aria-label="Printable quotation preview">
-                <table class="print-layout" role="presentation">
-                    <tbody>
-                        <tr>
-                            <td class="print-content">
-                                <header class="letterhead">
-                                    <img src="logo.jpg" alt="C-Medics logo" class="letterhead-logo">
-                                    <div class="business-name">
-                                        <h2>C-MEDICS</h2>
-                                        <p>MEDICAL &amp; SURGICALS<br>HYDERABAD</p>
-                                    </div>
-                                    <div class="business-ids">
-                                        <p><strong>GST:</strong> 36ARFPB8680H1ZN</p>
-                                        <p><strong>DL:</strong> 20B TG/HYD/2024-127667<br>21B TG/HYD/2024-127667</p>
-                                    </div>
-                                </header>
+            <h2 id="preview-heading" class="preview-heading">Content preview &mdash; create PDF for the final page layout</h2>
+            <article id="quotationPreview" class="quotation-sheet" aria-label="Quotation content preview">
+                <header class="letterhead">
+                    <img src="logo.jpg" alt="C-Medics logo" class="letterhead-logo">
+                    <div class="business-name">
+                        <h2>C-MEDICS</h2>
+                        <p>MEDICAL &amp; SURGICALS<br>HYDERABAD</p>
+                    </div>
+                    <div class="business-ids">
+                        <p><strong>GST:</strong> 36ARFPB8680H1ZN</p>
+                        <p><strong>DL:</strong> 20B TG/HYD/2024-127667<br>21B TG/HYD/2024-127667</p>
+                    </div>
+                </header>
 
-                                <div class="quotation-date"><span id="previewDate"></span></div>
-                                <section class="recipient-block">
-                                    <h3>TO</h3>
-                                    <p id="previewRecipient"></p>
-                                </section>
-                                <p class="quotation-subject">SUB: <span id="previewSubject"></span></p>
+                <div class="quotation-date"><span id="previewDate"></span></div>
+                <section class="recipient-block">
+                    <h3>TO</h3>
+                    <p id="previewRecipient"></p>
+                </section>
+                <p class="quotation-subject">SUB: <span id="previewSubject"></span></p>
 
-                                <div class="table-wrap">
-                                    <table class="quotation-table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">S. No.</th>
-                                                <th scope="col">Product</th>
-                                                <th scope="col">Qty</th>
-                                                <th scope="col">Offer price<br>(per unit)</th>
-                                                <th scope="col">GST<br>(per unit)</th>
-                                                <th scope="col">GST rate</th>
-                                                <th scope="col">Unit price<br>incl. GST</th>
-                                                <th scope="col">Line total<br>incl. GST</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="previewProducts"></tbody>
-                                    </table>
-                                </div>
+                <div class="table-wrap">
+                    <table class="quotation-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">S. No.</th>
+                                <th scope="col">Product</th>
+                                <th scope="col">Qty</th>
+                                <th scope="col">Offer price<br>(per unit)</th>
+                                <th scope="col">GST<br>(per unit)</th>
+                                <th scope="col">GST rate</th>
+                                <th scope="col">Unit price<br>incl. GST</th>
+                                <th scope="col">Line total<br>incl. GST</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewProducts"></tbody>
+                    </table>
+                </div>
 
-                                <div class="quotation-totals">
-                                    <p><span>Offer subtotal</span><strong id="previewSubtotal"></strong></p>
-                                    <p><span>Total GST</span><strong id="previewGst"></strong></p>
-                                    <p class="grand-total"><span>Grand total (incl. GST)</span><strong id="previewTotal"></strong></p>
-                                </div>
+                <div class="quotation-totals">
+                    <p><span>Offer subtotal</span><strong id="previewSubtotal"></strong></p>
+                    <p><span>Total GST</span><strong id="previewGst"></strong></p>
+                    <p class="grand-total"><span>Grand total (incl. GST)</span><strong id="previewTotal"></strong></p>
+                </div>
 
-                                <footer class="quotation-footer">
-                                    <div class="signoff">
-                                        <p>THANKS &amp; REGARDS</p>
-                                        <strong>C-MEDICS<br>HYDERABAD</strong>
-                                    </div>
-                                </footer>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td class="print-footer">
-                                <div class="business-contact">
-                                    <p>ADDRESS: Shop No. 8, SMR In Style Building, Dubai Gate, Old Bowenpally, Secunderabad</p>
-                                    <p>EMAIL: cmedics@yahoo.com &nbsp; | &nbsp; MOBILE: 9177433361</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <footer class="quotation-footer">
+                    <div class="signoff">
+                        <p>THANKS &amp; REGARDS</p>
+                        <strong>C-MEDICS<br>HYDERABAD</strong>
+                    </div>
+                </footer>
+                <div class="business-contact">
+                    <p>ADDRESS: Shop No. 8, SMR In Style Building, Dubai Gate, Old Bowenpally, Secunderabad</p>
+                    <p>EMAIL: cmedics@yahoo.com &nbsp; | &nbsp; MOBILE: 9177433361</p>
+                </div>
             </article>
         </section>
     </main>
-    <div id="printDocument" class="print-document" aria-hidden="true"></div>
+    <p class="print-instructions">Use Create PDF in the quotation builder, then open and print the generated PDF.</p>
 
     <template id="productRowTemplate">
         <div class="product-row">
@@ -149,6 +140,9 @@
             <button class="remove-product" type="button" aria-label="Remove product">&times;</button>
         </div>
     </template>
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+    <script src="js/vendor/jspdf.plugin.autotable.min.js"></script>
+    <script src="js/quotation-pdf.js"></script>
     <script src="js/quotation.js"></script>
 </body>
 </html>
