@@ -47,7 +47,8 @@
 
                 <div class="editor-actions">
                     <button id="printQuotation" class="button button-primary" type="button">Print / Save as PDF</button>
-                    <p>In the print window, choose “Save as PDF” as the destination.</p>
+                    <p>Use A4 portrait with browser headers and footers off. On iPhone/iPad, open the print preview, then use Share to save it to Files. On desktop, choose “Save as PDF”.</p>
+                    <p id="printStatus" role="status" aria-live="polite"></p>
                 </div>
             </form>
         </section>
@@ -125,6 +126,7 @@
             </article>
         </section>
     </main>
+    <div id="printDocument" class="print-document" aria-hidden="true"></div>
 
     <template id="productRowTemplate">
         <div class="product-row">

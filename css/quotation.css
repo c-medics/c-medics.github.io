@@ -398,14 +398,14 @@ legend {
     margin: 0.15rem 0;
 }
 
-@media (max-width: 1100px) {
+@media screen and (max-width: 1100px) {
     .workspace {
         grid-template-columns: 1fr;
         max-width: 850px;
     }
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
     .app-header {
         padding: 1rem;
     }
@@ -469,132 +469,152 @@ legend {
     margin: 12mm;
 }
 
-@media print {
-    :root,
-    body {
-        background: #fff;
-    }
+.print-document {
+    position: absolute;
+    left: -10000px;
+    top: 0;
+    width: 186mm;
+    height: 0;
+    overflow: hidden;
+    font-size: 12px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overflow-wrap: anywhere;
+}
 
-    .app-header,
-    .editor,
-    .preview-heading {
-        display: none !important;
-    }
+.print-page {
+    width: 186mm;
+    height: 272mm;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    break-after: page;
+    page-break-after: always;
+}
 
-    .workspace {
-        display: block;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-    }
+.print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+}
 
-    .preview-panel {
-        display: block;
-    }
+.print-page-body {
+    display: flow-root;
+}
 
-    .quotation-sheet {
-        width: 100%;
-        min-height: 0;
-        padding: 0;
-        box-shadow: none;
-    }
+.print-page-contact {
+    margin-top: auto;
+    padding-top: 4mm;
+}
 
-    /* Fill the A4 content area so the footer sits at the bottom; tfoot repeats on every page. */
-    .print-layout {
-        height: 272mm;
-    }
+.print-page-number {
+    text-align: right;
+    font-size: 8px;
+    margin: 2mm 0 0;
+}
 
-    .print-layout > tfoot {
-        display: table-footer-group;
-    }
-
-    .print-content {
-        vertical-align: top;
-    }
-
-    .letterhead {
+.print-document .letterhead {
         grid-template-columns: 86px minmax(0, 1fr) minmax(145px, 0.8fr);
         gap: 10px;
         padding-bottom: 14px;
     }
 
-    .letterhead-logo {
+.print-document .letterhead-logo {
         width: 78px;
         height: 78px;
     }
 
-    .business-name h2 {
+.print-document .business-name h2 {
         font-size: 23px;
     }
 
-    .business-name p {
+.print-document .business-name p {
         font-size: 11px;
     }
 
-    .business-ids {
+.print-document .business-ids {
+        grid-column: auto;
+        justify-self: end;
         font-size: 9px;
     }
 
-    .quotation-date {
+.print-document .quotation-date {
         margin: 14px 0 10px;
         font-size: 10px;
     }
 
-    .recipient-block {
+.print-document .recipient-block {
         min-height: 78px;
     }
 
-    .recipient-block h3,
-    .recipient-block p,
-    .quotation-subject {
+.print-document .recipient-block h3,
+.print-document .recipient-block p,
+.print-document .quotation-subject {
         font-size: 10px;
     }
 
-    .quotation-subject {
+.print-document .quotation-subject {
         margin: 14px 0 18px;
     }
 
-    .table-wrap {
+.print-document .table-wrap {
         overflow: visible;
     }
 
-    .quotation-table {
+.print-document .quotation-table {
         font-size: 8px;
     }
 
-    .quotation-table th,
-    .quotation-table td {
+.print-document .quotation-table th,
+.print-document .quotation-table td {
         padding: 5px 3px;
     }
 
-    .quotation-table thead {
+.print-document .quotation-table thead {
         display: table-header-group;
     }
 
-    .quotation-table tr {
+.print-document .quotation-table tr {
         break-inside: avoid;
     }
 
-    .quotation-totals p {
+.print-document .quotation-totals p {
         font-size: 9px;
     }
 
-    .grand-total {
+.print-document .grand-total {
         font-size: 10px !important;
     }
 
-    .quotation-footer {
+.print-document .quotation-footer {
         margin-top: 24px;
         break-inside: avoid;
     }
 
-    .signoff {
+.print-document .signoff {
         min-height: 70px;
         font-size: 10px;
     }
 
-    .business-contact {
+.print-document .business-contact {
         font-size: 8px;
+    }
+
+@media print {
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+
+    body > :not(.print-document) {
+        display: none !important;
+    }
+
+    .print-document {
+        position: static;
+        height: auto;
+        overflow: visible;
     }
 
     * {
