@@ -234,12 +234,9 @@ legend {
 }
 
 .print-content,
-.print-footer-space {
+.print-footer {
     padding: 0;
-}
-
-.print-layout > tfoot {
-    display: none;
+    vertical-align: bottom;
 }
 
 .letterhead {
@@ -502,12 +499,17 @@ legend {
         box-shadow: none;
     }
 
+    /* Fill the A4 content area so the footer sits at the bottom; tfoot repeats on every page. */
+    .print-layout {
+        height: 272mm;
+    }
+
     .print-layout > tfoot {
         display: table-footer-group;
     }
 
-    .print-footer-space {
-        height: 16mm;
+    .print-content {
+        vertical-align: top;
     }
 
     .letterhead {
@@ -592,11 +594,6 @@ legend {
     }
 
     .business-contact {
-        /* The repeating layout footer reserves this space on every printed page. */
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
         font-size: 8px;
     }
 
