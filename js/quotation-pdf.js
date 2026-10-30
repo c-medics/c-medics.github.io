@@ -28,7 +28,7 @@
         }
     }
 
-    window.createQuotationPdf = async function ({ recipient, subject, date, products }) {
+    window.createQuotationPdf = async function ({ recipient, subject, date, products, signature }) {
         if (!window.jspdf || !window.jspdf.jsPDF) {
             throw new Error('The PDF library could not be loaded. Reload the page and try again.');
         }
@@ -112,7 +112,11 @@
         });
 
         let y = doc.lastAutoTable.finalY + 10;
-        if (y + 48 > contentBottom) {
+        const signatureScale = signature ? Math.min(46 / signature.width, 26 / signature.height) : 0;
+        const signatureWidth = signature ? signature.width * signatureScale : 0;
+        const signatureHeight = signature ? signature.height * signatureScale : 0;
+        const closingHeight = signature ? Math.max(48, 29 + signatureHeight) : 48;
+        if (y + closingHeight > contentBottom) {
             doc.addPage();
             y = continuationTop;
         }
@@ -137,6 +141,9 @@
         doc.setFont('NotoSans', 'bold');
         doc.text('THANKS & REGARDS', left, y + 10);
         doc.text(['C-MEDICS', 'HYDERABAD'], left, y + 17);
+        if (signature) {
+            doc.addImage(signature.data, 'PNG', left + 34, y + 8, signatureWidth, signatureHeight);
+        }
 
         const pages = doc.getNumberOfPages();
         for (let page = 1; page <= pages; page++) {

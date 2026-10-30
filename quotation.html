@@ -45,6 +45,20 @@
                     <button id="addProduct" class="button button-secondary" type="button">+ Add product</button>
                 </fieldset>
 
+                <fieldset>
+                    <legend>Stamp &amp; signature (optional)</legend>
+                    <label class="field">
+                        <span>Choose a PNG or JPG image</span>
+                        <input id="signatureFile" type="file" accept="image/png,image/jpeg" aria-describedby="signatureHint signatureStatus">
+                    </label>
+                    <p id="signatureHint" class="field-hint">Stays on this device for this page session. Select it again after reloading. Maximum 5 MB.</p>
+                    <p id="signatureStatus" role="status" aria-live="polite"></p>
+                    <div id="signatureSelection" hidden>
+                        <img id="signaturePreview" class="signature-image" alt="Selected stamp and signature">
+                        <button id="removeSignature" class="button button-secondary" type="button">Remove image</button>
+                    </div>
+                </fieldset>
+
                 <div class="editor-actions">
                     <button id="printQuotation" class="button button-primary" type="button">Create PDF</button>
                     <p>Create your quotation, then open, download or share it. Your details stay on your device.</p>
@@ -106,8 +120,11 @@
 
                 <footer class="quotation-footer">
                     <div class="signoff">
-                        <p>THANKS &amp; REGARDS</p>
-                        <strong>C-MEDICS<br>HYDERABAD</strong>
+                        <div class="signoff-text">
+                            <p>THANKS &amp; REGARDS</p>
+                            <strong>C-MEDICS<br>HYDERABAD</strong>
+                        </div>
+                        <img id="previewSignature" class="signature-image" alt="Stamp and signature" hidden>
                     </div>
                 </footer>
                 <div class="business-contact">

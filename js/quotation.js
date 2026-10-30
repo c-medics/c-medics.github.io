@@ -117,6 +117,74 @@
     const shareButton = document.getElementById('sharePdf');
     let pdfUrl;
     let pdfFile;
+    const signatureInput = document.getElementById('signatureFile');
+    const signatureStatus = document.getElementById('signatureStatus');
+    let signature;
+    let signatureVersion = 0;
+
+    function clearSignature(resetInput = true) {
+        signatureVersion++;
+        signature = undefined;
+        if (resetInput) signatureInput.value = '';
+        signatureInput.setCustomValidity('');
+        signatureStatus.textContent = '';
+        document.getElementById('signatureSelection').hidden = true;
+        for (const id of ['signaturePreview', 'previewSignature']) {
+            const image = document.getElementById(id);
+            image.removeAttribute('src');
+            image.hidden = true;
+        }
+        updatePreview();
+    }
+
+    document.getElementById('removeSignature').addEventListener('click', () => clearSignature());
+    signatureInput.addEventListener('change', async () => {
+        const file = signatureInput.files[0];
+        clearSignature(false);
+        if (!file) return;
+        const version = signatureVersion;
+        signatureInput.setCustomValidity('Wait for the stamp and signature image to finish loading.');
+        signatureStatus.textContent = 'Loading image...';
+        let url;
+        try {
+            if (!['image/png', 'image/jpeg'].includes(file.type)) {
+                throw new Error('Choose a PNG or JPG image.');
+            }
+            if (file.size > 5 * 1024 * 1024) throw new Error('Choose an image smaller than 5 MB.');
+            url = URL.createObjectURL(file);
+            const image = new Image();
+            image.src = url;
+            await image.decode();
+            if (version !== signatureVersion) return;
+            if (image.naturalWidth * image.naturalHeight > 24000000) {
+                throw new Error('The image is too large. Resize it to at most 24 megapixels.');
+            }
+            const scale = Math.min(1, 1200 / Math.max(image.naturalWidth, image.naturalHeight));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+            canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+            const context = canvas.getContext('2d');
+            if (!context) throw new Error('This browser could not prepare the image.');
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            signature = { data: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height };
+            for (const id of ['signaturePreview', 'previewSignature']) {
+                document.getElementById(id).src = signature.data;
+                document.getElementById(id).hidden = false;
+            }
+            document.getElementById('signatureSelection').hidden = false;
+            signatureInput.setCustomValidity('');
+            signatureStatus.textContent = `${file.name} selected. Included on the final PDF page only.`;
+        } catch (error) {
+            if (version !== signatureVersion) return;
+            console.error('Unable to prepare stamp and signature:', error);
+            const message = error.name === 'EncodingError' ? 'The image could not be read. Choose a valid PNG or JPG.' : error.message;
+            signatureInput.setCustomValidity(message);
+            signatureStatus.textContent = message;
+            document.getElementById('signatureSelection').hidden = false;
+        } finally {
+            if (url) URL.revokeObjectURL(url);
+        }
+    });
 
     shareButton.addEventListener('click', async () => {
         if (!pdfFile) return;
@@ -149,7 +217,8 @@
                 recipient: document.getElementById('recipient').value.trim(),
                 subject: document.getElementById('subject').value.trim(),
                 date: formatDate(document.getElementById('quotationDate').value),
-                products: getProducts()
+                products: getProducts(),
+                signature
             });
             if (pdfUrl) URL.revokeObjectURL(pdfUrl);
             pdfUrl = URL.createObjectURL(blob);

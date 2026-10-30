@@ -152,3 +152,68 @@ for (const outcome of ['success', 'cancel', 'failure']) {
         await expect(page.locator('#downloadPdf')).toBeVisible();
     });
 }
+
+for (const count of [1, 20, 90]) {
+    test(`private signature image on final page: ${count} products`, async ({ page }, testInfo) => {
+        await enterQuotation(page, count);
+        const encoded = await page.evaluate(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 210;
+            const context = canvas.getContext('2d');
+            context.fillStyle = 'blue';
+            context.fillRect(20, 20, 300, 150);
+            return canvas.toDataURL('image/png').split(',')[1];
+        });
+        await page.locator('#signatureFile').setInputFiles({
+            name: 'test-signature.png', mimeType: 'image/png', buffer: Buffer.from(encoded, 'base64')
+        });
+        await expect(page.locator('#signatureStatus')).toContainText('selected');
+        await expect(page.locator('#previewSignature')).toBeVisible();
+        const signoffLayout = await page.locator('.signoff').evaluate((element) => {
+            const text = element.querySelector('.signoff-text').getBoundingClientRect();
+            const image = element.querySelector('img').getBoundingClientRect();
+            const footer = document.querySelector('.business-contact').getBoundingClientRect();
+            const box = element.getBoundingClientRect();
+            return {
+                beside: image.left >= text.right,
+                aligned: Math.abs(image.top - text.top) < 1,
+                contained: image.right <= box.right + 1,
+                aboveFooter: Math.max(image.bottom, text.bottom) < footer.top
+            };
+        });
+        expect(signoffLayout).toEqual({ beside: true, aligned: true, contained: true, aboveFooter: true });
+        const pdf = await downloadPdf(page, testInfo);
+        const status = await page.locator('#printStatus').textContent();
+        const pages = Number(status.match(/(\d+) A4/)[1]);
+        const check = spawnSync('python', [
+            path.join(__dirname, 'verify_pdf.py'), pdf, String(pages), String(count), 'signature'
+        ], { encoding: 'utf8' });
+        expect(check.status, check.stdout + check.stderr).toBe(0);
+        if (count === 1) expect(pages).toBe(1);
+        await page.locator('#removeSignature').click();
+        await expect(page.locator('#previewSignature')).toBeHidden();
+        await expect(page.locator('#pdfActions')).toBeHidden();
+        const unsignedPdf = await downloadPdf(page, testInfo, 'without-signature.pdf');
+        const unsignedPages = Number((await page.locator('#printStatus').textContent()).match(/(\d+) A4/)[1]);
+        const unsignedCheck = spawnSync('python', [
+            path.join(__dirname, 'verify_pdf.py'), unsignedPdf, String(unsignedPages), String(count)
+        ], { encoding: 'utf8' });
+        expect(unsignedCheck.status, unsignedCheck.stdout + unsignedCheck.stderr).toBe(0);
+        await page.reload();
+        await expect(page.locator('#signatureSelection')).toBeHidden();
+    });
+}
+
+test('invalid signature blocks generation until removed', async ({ page }) => {
+    await enterQuotation(page, 1);
+    await page.locator('#signatureFile').setInputFiles({
+        name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('not an image')
+    });
+    await expect(page.locator('#signatureStatus')).toContainText('could not be read');
+    await page.locator('#printQuotation').click();
+    await expect(page.locator('#pdfActions')).toBeHidden();
+    await page.locator('#removeSignature').click();
+    await page.locator('#printQuotation').click();
+    await expect(page.locator('#pdfActions')).toBeVisible();
+});
